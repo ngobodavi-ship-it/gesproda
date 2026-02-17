@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Gestion des Ventes et Services</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-logo {
+            font-size: 64px;
+            margin-bottom: 10px;
+        }
+
+        .auth-title {
+            color: #1e293b;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .auth-subtitle {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            color: #334155;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #334155;
+            margin-top: 10px;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            border: 1px solid #a7f3d0;
+            color: #059669;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .link-button {
+            background: none;
+            border: none;
+            color: #667eea;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+        }
+
+        .link-button:hover {
+            color: #764ba2;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .password-toggle {
+            position: relative;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="auth-logo">📊</div>
+            <h1 class="auth-title">Gestion des Ventes et Services</h1>
+            <p class="auth-subtitle" id="screenSubtitle">Connectez-vous pour continuer</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+
+        <!-- ÉCRAN DE CONNEXION -->
+        <div id="loginScreen">
+            <form id="loginForm" onsubmit="login(event)">
+                <div class="form-group">
+                    <label class="form-label">Adresse Email</label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="votreemail@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mot de Passe</label>
+                    <div class="password-toggle">
+                        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
+                        <button type="button" class="password-toggle-btn" onclick="togglePassword('loginPassword')">👁️</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="loginBtn">🔓 Se Connecter</button>
+            </form>
+
+            <div class="divider">ou</div>
+
+            <button class="btn btn-secondary" onclick="showRegisterScreen()">✨ Créer un Compte</button>
+
+            <div class="text-center" style="margin-top: 15px;">
+                <button class="link-button" onclick="showForgotScreen()">Mot de passe oublié ?</button>
+            </div>
+        </div>
+
+        <!-- ÉCRAN D'INSCRIPTION -->
+        <div id="registerScreen" class="hidden">
+            <form id="registerForm" onsubmit="register(event)">
+                <div class="form-group">
+                    <label class="form-label">Nom Complet</label>
+                    <input type="text" id="registerName" class="form-input" placeholder="Jean Dupont" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Adresse Email</label>
+                    <input type="email" id="registerEmail" class="form-input" placeholder="votreemail@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mot de Passe (min. 6 caractères)</label>
+                    <div class="password-toggle">
+                        <input type="password" id="registerPassword" class="form-input" placeholder="••••••••" minlength="6" required>
+                        <button type="button" class="password-toggle-btn" onclick="togglePassword('registerPassword')">👁️</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Confirmer le Mot de Passe</label>
+                    <div class="password-toggle">
+                        <input type="password" id="registerPasswordConfirm" class="form-input" placeholder="••••••••" minlength="6" required>
+                        <button type="button" class="password-toggle-btn" onclick="togglePassword('registerPasswordConfirm')">👁️</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="registerBtn">✅ Créer mon Compte</button>
+            </form>
+
+            <div class="text-center" style="margin-top: 20px;">
+                <button class="link-button" onclick="showLoginScreen()">← Retour à la connexion</button>
+            </div>
+        </div>
+
+        <!-- ÉCRAN MOT DE PASSE OUBLIÉ -->
+        <div id="forgotScreen" class="hidden">
+            <form id="forgotForm" onsubmit="resetPassword(event)">
+                <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">
+                    Entrez votre adresse email pour recevoir un lien de réinitialisation.
+                </p>
+
+                <div class="form-group">
+                    <label class="form-label">Adresse Email</label>
+                    <input type="email" id="forgotEmail" class="form-input" placeholder="votreemail@example.com" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="forgotBtn">📧 Envoyer le lien</button>
+            </form>
+
+            <div class="text-center" style="margin-top: 20px;">
+                <button class="link-button" onclick="showLoginScreen()">← Retour à la connexion</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAB0oBI4Iwnrz86NaLxu8pIwmWr9VyLGVM",
+            authDomain: "gestion-des-ventes-et-services.firebaseapp.com",
+            projectId: "gestion-des-ventes-et-services",
+            storageBucket: "gestion-des-ventes-et-services.firebasestorage.app",
+            messagingSenderId: "635196425100",
+            appId: "1:635196425100:web:20123bd2d82f6be342cca9"
+        };
+
+        // Initialiser Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Exposer globalement
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.firebaseDoc = doc;
+        window.firebaseSetDoc = setDoc;
+        window.firebaseGetDoc = getDoc;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.sendPasswordResetEmail = sendPasswordResetEmail;
+        window.updateProfile = updateProfile;
+
+        // Vérifier si déjà connecté
+        onAuthStateChanged(auth, (user) => {
+            if (user && !window.location.href.includes('forgotScreen')) {
+                // Utilisateur connecté, rediriger
+                window.location.href = 'gestion-ventes-mobile-FIREBASE.html';
+            }
+        });
+
+        console.log('✅ Firebase initialisé avec succès!');
+    </script>
+
+    <script>
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            successDiv.style.display = 'none';
+            errorDiv.textContent = '❌ ' + message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => errorDiv.style.display = 'none', 5000);
+        }
+
+        function showSuccess(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            errorDiv.style.display = 'none';
+            successDiv.textContent = '✅ ' + message;
+            successDiv.style.display = 'block';
+            setTimeout(() => successDiv.style.display = 'none', 5000);
+        }
+
+        function showLoginScreen() {
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('registerScreen').classList.add('hidden');
+            document.getElementById('forgotScreen').classList.add('hidden');
+            document.getElementById('screenSubtitle').textContent = 'Connectez-vous pour continuer';
+        }
+
+        function showRegisterScreen() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('registerScreen').classList.remove('hidden');
+            document.getElementById('forgotScreen').classList.add('hidden');
+            document.getElementById('screenSubtitle').textContent = 'Créez votre compte';
+        }
+
+        function showForgotScreen() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('registerScreen').classList.add('hidden');
+            document.getElementById('forgotScreen').classList.remove('hidden');
+            document.getElementById('screenSubtitle').textContent = 'Réinitialiser le mot de passe';
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        function setButtonLoading(buttonId, loading) {
+            const btn = document.getElementById(buttonId);
+            if (loading) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading"></span>';
+            } else {
+                btn.disabled = false;
+            }
+        }
+
+        async function register(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+
+            if (password !== passwordConfirm) {
+                showError('Les mots de passe ne correspondent pas');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('Le mot de passe doit contenir au moins 6 caractères');
+                return;
+            }
+
+            setButtonLoading('registerBtn', true);
+
+            try {
+                // Créer le compte
+                const userCredential = await window.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+                const user = userCredential.user;
+
+                // Mettre à jour le profil avec le nom
+                await window.updateProfile(user, { displayName: name });
+
+                // Créer le document utilisateur dans Firestore avec statut inactif
+                await window.firebaseSetDoc(window.firebaseDoc(window.firebaseDb, 'users', user.uid), {
+                    name: name,
+                    email: email,
+                    status: 'inactive',
+                    role: 'user',
+                    subscriptionEnd: '',
+                    createdAt: new Date().toISOString()
+                });
+
+                showSuccess('Compte créé ! En attente d\'activation par l\'administrateur.');
+
+                setTimeout(() => {
+                    window.location.href = 'gestion-ventes-mobile-FIREBASE.html';
+                }, 2000);
+
+            } catch (error) {
+                console.error('Erreur inscription:', error);
+                let message = 'Erreur lors de la création du compte';
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    message = 'Un compte existe déjà avec cet email';
+                } else if (error.code === 'auth/invalid-email') {
+                    message = 'Adresse email invalide';
+                } else if (error.code === 'auth/weak-password') {
+                    message = 'Mot de passe trop faible';
+                }
+
+                showError(message);
+                setButtonLoading('registerBtn', false);
+                document.getElementById('registerBtn').innerHTML = '✅ Créer mon Compte';
+            }
+        }
+
+        async function login(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            setButtonLoading('loginBtn', true);
+
+            try {
+                // Connexion Firebase
+                const userCredential = await window.signInWithEmailAndPassword(window.firebaseAuth, email, password);
+                const user = userCredential.user;
+
+                // Récupérer le document utilisateur dans Firestore
+                const userDocRef = window.firebaseDoc(window.firebaseDb, 'users', user.uid);
+                const userDoc = await window.firebaseGetDoc(userDocRef);
+
+                if (!userDoc.exists()) {
+                    // Document n'existe pas, le créer avec statut inactif
+                    await window.firebaseSetDoc(userDocRef, {
+                        name: user.displayName || 'Utilisateur',
+                        email: user.email,
+                        status: 'inactive',
+                        role: 'user',
+                        subscriptionEnd: '',
+                        createdAt: new Date().toISOString()
+                    });
+                    showError('Compte non activé. Contactez l\'administrateur.');
+                    await window.firebaseSignOut(window.firebaseAuth);
+                    setButtonLoading('loginBtn', false);
+                    document.getElementById('loginBtn').innerHTML = '🔓 Se Connecter';
+                    return;
+                }
+
+                const userData = userDoc.data();
+
+                // Vérifier le statut
+                if (userData.status !== 'active') {
+                    showError('Compte non activé. Contactez l\'administrateur.');
+                    await window.firebaseSignOut(window.firebaseAuth);
+                    setButtonLoading('loginBtn', false);
+                    document.getElementById('loginBtn').innerHTML = '🔓 Se Connecter';
+                    return;
+                }
+
+                // Vérifier la date d'expiration
+                if (userData.subscriptionEnd) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const endDate = new Date(userData.subscriptionEnd);
+                    endDate.setHours(0, 0, 0, 0);
+
+                    if (today > endDate) {
+                        showError('Abonnement expiré le ' + userData.subscriptionEnd + '. Contactez l\'administrateur pour renouveler.');
+                        await window.firebaseSignOut(window.firebaseAuth);
+                        setButtonLoading('loginBtn', false);
+                        document.getElementById('loginBtn').innerHTML = '🔓 Se Connecter';
+                        return;
+                    }
+                }
+
+                // Tout est OK, connexion réussie
+                showSuccess('Connexion réussie ! Redirection...');
+                
+                setTimeout(() => {
+                    window.location.href = 'gestion-ventes-mobile-FIREBASE.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error('Erreur connexion:', error);
+                let message = 'Email ou mot de passe incorrect';
+                
+                if (error.code === 'auth/user-not-found') {
+                    message = 'Aucun compte trouvé avec cet email';
+                } else if (error.code === 'auth/wrong-password') {
+                    message = 'Mot de passe incorrect';
+                } else if (error.code === 'auth/invalid-email') {
+                    message = 'Adresse email invalide';
+                } else if (error.code === 'auth/too-many-requests') {
+                    message = 'Trop de tentatives. Réessayez plus tard.';
+                }
+
+                showError(message);
+                setButtonLoading('loginBtn', false);
+                document.getElementById('loginBtn').innerHTML = '🔓 Se Connecter';
+            }
+        }
+
+        async function resetPassword(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('forgotEmail').value.trim();
+
+            setButtonLoading('forgotBtn', true);
+
+            try {
+                await window.sendPasswordResetEmail(window.firebaseAuth, email);
+                showSuccess('Email de réinitialisation envoyé ! Vérifiez votre boîte mail.');
+                
+                setTimeout(() => {
+                    showLoginScreen();
+                    setButtonLoading('forgotBtn', false);
+                    document.getElementById('forgotBtn').innerHTML = '📧 Envoyer le lien';
+                }, 3000);
+
+            } catch (error) {
+                console.error('Erreur reset:', error);
+                let message = 'Erreur lors de l\'envoi de l\'email';
+                
+                if (error.code === 'auth/user-not-found') {
+                    message = 'Aucun compte trouvé avec cet email';
+                } else if (error.code === 'auth/invalid-email') {
+                    message = 'Adresse email invalide';
+                }
+
+                showError(message);
+                setButtonLoading('forgotBtn', false);
+                document.getElementById('forgotBtn').innerHTML = '📧 Envoyer le lien';
+            }
+        }
+    </script>
+</body>
+</html>
